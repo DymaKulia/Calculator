@@ -30,10 +30,11 @@ public class Calculator {
 		allowableSimbols.add("9");
 	}
 
-	private Stack<String> stack = new Stack<String>();
+	private Stack<String> firstStack = new Stack<String>();
+	private Stack<String> secondStack = new Stack<String>();
 
-	private char OPEN_BRACKET = '(';
-	private char CLOSE_BRACKET = ')';
+	private String OPEN_BRACKET = "(";
+	private String CLOSE_BRACKET = ")";
 
 	public static void main(String[] args) {
 
@@ -41,91 +42,123 @@ public class Calculator {
 		try {
 			System.out.println("Answer = " + calc.calculate(""));
 		} catch (Exception e) {
-			calc.stack.clear();
+			calc.secondStack.clear();
 		}
+		/*
+		 * Calculator calc = new Calculator(); calc.fillFirstStack( "123456");
+		 * 
+		 * for (int i = 1; i < 9; i++) {
+		 * System.out.println(calc.firstStack.pop()); }
+		 */
+		// String adaptedInnerExpres="123456";
 
+		/*
+		 * for (int i = adaptedInnerExpres.length(); i > 0; i--) {
+		 * 
+		 * String symbol = adaptedInnerExpres.substring(i-1, i);
+		 * System.out.println(symbol); }
+		 */
+
+		// String symbol = "123456".substring(5, 6);
+		// System.out.println("123456".length());
 	}
 
 	public int calculate(String innerExpres) {
 
-		ArrayList<String> polskForm = getPolskForm(innerExpres);
+		fillFirstStack(innerExpres);
+		ArrayList<String> polskForm = getPolskForm();
 
 		return 0;
 	}
 
-	private ArrayList<String> getPolskForm(String innerExpres) {
+	private void fillFirstStack(String innerExpres) {
+
+		// Do check here about double operators? start with operator or bracket
+		// etc.
+
+		// Kind Errors
+		// System.out.println("Expression cannot start with operators");
+		// System.out.println("Expression cannot start with close bracket");
+		// System.out.println("Undefined symbol " + symbol	+ " in position " + symbolPosition);
+		
 
 		// "!" - begin and finish symbol of expression
-		String adaptedInnerExpres = "!" + innerExpres + "!";
+		String adaptedInnerExpres = innerExpres + "!";
+
+		for (int i = adaptedInnerExpres.length(); i > 0; i--) {
+
+			String symbol = adaptedInnerExpres.substring(i - 1, i);
+			firstStack.push(symbol);
+		}
+
+	}
+
+	private ArrayList<String> getPolskForm() {
+
 		ArrayList<String> polskForm = new ArrayList<String>();
 		StringBuilder builder = new StringBuilder();
-		stack.push("!");
+		secondStack.push("!");
 
-		for (int i = 1; i < adaptedInnerExpres.length(); i++) {
-			char symbol = adaptedInnerExpres.charAt(i);
+		int symbolPosition = 1;
+
+		while (!firstStack.empty()) {
+
+			String symbol = firstStack.peek();
 
 			if (isOperator(symbol)) {
-				if (i == 1) {
-					System.out
-							.println("Expression cannot start with operators");
-					throw new RuntimeException();
-				}
 
-				if (stack.peek().equals(OPEN_BRACKET)) {
-					System.out
-							.println("Expression cannot start with operators after"
-									+ " open bracket in position " + i);
-					throw new RuntimeException();
-				}
-
-				switch (stack.peek()) {
+				switch (secondStack.peek()) {
 
 				case "!":
 
-					break;
-
-				case ")":
+					firstStack.push(symbol);
+					secondStack.pop();
+					symbolPosition++;
 
 					break;
 
 				case "(":
 
+					firstStack.push(symbol);
+					secondStack.pop();
+					symbolPosition++;
+
 					break;
 
-				case "-":
+				default:
 
 					break;
 				}
 
 			} else if (isBracket(symbol)) {
 
-				switch (stack.peek()) {
+				switch (secondStack.peek()) {
 
 				case "!":
 
-					break;
-
-				case ")":
-
+					if (symbol == CLOSE_BRACKET) {
+						System.out.println("Bracket in position "
+								+ symbolPosition + " do not have open bracket");
+						throw new RuntimeException();
+					} else {
+						secondStack.push(OPEN_BRACKET);
+					}
 					break;
 
 				case "(":
 
-					break;
-
-				case "-":
-
+					if (symbol == CLOSE_BRACKET) {
+						secondStack.pop();
+					} else {
+						secondStack.push(OPEN_BRACKET);
+					}
 					break;
 				}
 
-			} else if (!isAllowableSymbol(symbol)) {
-				System.out.println("Andefined symbol " + symbol
-						+ " in position " + i);
-				throw new RuntimeException();
 			} else {
 
 				builder.append(symbol);
-				
+
 			}
 
 		}
@@ -133,14 +166,14 @@ public class Calculator {
 		return null;
 	}
 
-	private boolean isBracket(char symbol) {
+	private boolean isBracket(String symbol) {
 		if (symbol == CLOSE_BRACKET || symbol == OPEN_BRACKET) {
 			return true;
 		}
 		return false;
 	}
 
-	private boolean isAllowableSymbol(char symbol) {
+	private boolean isAllowableSymbol(String symbol) {
 
 		if (allowableSimbols.contains(symbol)) {
 			return true;
@@ -148,7 +181,7 @@ public class Calculator {
 		return false;
 	}
 
-	private boolean isOperator(char symbol) {
+	private boolean isOperator(String symbol) {
 
 		if (mathOperations.contains(symbol)) {
 			return true;
