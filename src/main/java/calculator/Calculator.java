@@ -1,5 +1,7 @@
 package calculator;
 
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Stack;
 import java.util.StringTokenizer;
@@ -12,6 +14,8 @@ public class Calculator {
 		mathOperations = new ArrayList<String>();
 		mathOperations.add("+");
 		mathOperations.add("-");
+		mathOperations.add("*");
+		mathOperations.add("/");
 	}
 
 	private ArrayList<String> allowableSimbols;
@@ -39,57 +43,88 @@ public class Calculator {
 	public static void main(String[] args) {
 
 		Calculator calc = new Calculator();
-		try {
-			calc.calculate("((12+(1)+(1+3)+4))");
-			//System.out.println("Answer = " + calc.calculate("(12+1+3+4)"));
-		} catch (Exception e) {
-			e.printStackTrace();
-			calc.secondStack.clear();
-		}
+		while (true) {
+			StringBuilder builder = new StringBuilder();
+			System.out.println("Enter expression: ");
+			try {
+				InputStreamReader reader = new InputStreamReader(System.in);
+				int b = 0;
+				while (b != 13 & b != 10) {
+					if (b != 0) {
+						char c = (char) b;
+						builder.append(c);
+					}
+					b = reader.read();
+				}
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			// System.out.print(builder.toString());
 
+			System.out
+					.println("Answer = " + calc.calculate(builder.toString()));
+
+		}
 	}
 
 	public int calculate(String innerExpres) {
 
-		fillFirstStack(innerExpres);
-		ArrayList<String> polskForm = getPolskForm();
+		int result = 0;
+		if (isCorrectForm(innerExpres)) {
 
-		for (int i = 0; i < polskForm.size(); i++) {
-			
-			System.out.print(polskForm.get(i)+" ");
+			fillFirstStack(innerExpres);
+			ArrayList<String> polskForm = getPolskForm();
+
+			/*
+			 * for (int i = 0; i < polskForm.size(); i++) {
+			 * 
+			 * System.out.print(polskForm.get(i) + " "); }
+			 */
+
+			result = calculatePolskForm(polskForm);
+
 		}
 
-		return 0;
+		return result;
 	}
 
-	private void fillFirstStack(String innerExpres) {
-
+	private boolean isCorrectForm(String innerExpres) {
 		// Do check here about double operators, start with operator or bracket
 		// etc. or check "is correct innerExpres"
+
+		if (innerExpres.equals("")) {
+			System.out.println("Empty expression");
+			return false;
+		}
+
+		// to follow numbers of open/close brackets
+		int bracketsBalans = 0;
+
 		for (int i = 0; i < innerExpres.length(); i++) {
 			String symbol = innerExpres.substring(i, i + 1);
 			if (i == 0) {
 				if (isOperator(symbol)) {
 					System.out
 							.println("Expression cannot starts with operators");
-					throw new RuntimeException();
+					return false;
 				}
 				if (symbol.equals(CLOSE_BRACKET)) {
 					System.out
 							.println("Expression cannot starts with close bracket");
-					throw new RuntimeException();
+					return false;
 				}
 			}
 
 			if (i == innerExpres.length() - 1) {
 				if (isOperator(symbol)) {
 					System.out.println("Expression cannot ends with operators");
-					throw new RuntimeException();
+					return false;
 				}
 				if (symbol.equals(OPEN_BRACKET)) {
 					System.out
 							.println("Expression cannot ends with close bracket");
-					throw new RuntimeException();
+					return false;
 				}
 			}
 
@@ -100,18 +135,36 @@ public class Calculator {
 						System.out
 								.println("Expression cannot has operators befor close bracket in position "
 										+ (i + 1));
-						throw new RuntimeException();
+						return false;
 					}
 				}
 
 				if (symbol.equals(OPEN_BRACKET)) {
+					bracketsBalans++;
 					if (i != 0) {
 						String pastSymbol = innerExpres.substring(i - 1, i);
 						if (pastSymbol.equals(CLOSE_BRACKET)
 								|| isAllowableSymbol(pastSymbol)) {
 							System.out.println("Missed operator in position "
 									+ (i + 1));
-							throw new RuntimeException();
+							return false;
+						}
+					}
+				} else {
+
+					bracketsBalans--;
+					if (bracketsBalans < 0) {
+						System.out.println("Bracket in position " + i
+								+ " do not have open bracket");
+						return false;
+					}
+
+					if (i != 0) {
+						String pastSymbol = innerExpres.substring(i - 1, i);
+						if (pastSymbol.equals(OPEN_BRACKET)) {
+							System.out.println("Missed operand in position "
+									+ (i + 1));
+							return false;
 						}
 					}
 				}
@@ -121,18 +174,18 @@ public class Calculator {
 					System.out
 							.println("Expression cannot starts with operators after open bracket in position "
 									+ (i + 1));
-					throw new RuntimeException();
+					return false;
 				}
 				if (isOperator(pastSymbol)) {
 					System.out.println("Duplicate operators in position "
 							+ (i + 1));
-					throw new RuntimeException();
+					return false;
 				}
 			} else {
 				if (!isAllowableSymbol(symbol)) {
 					System.out.println("Undefined symbol " + symbol
 							+ " in position " + (i + 1));
-					throw new RuntimeException();
+					return false;
 				} else {
 
 					if (i != 0) {
@@ -140,14 +193,22 @@ public class Calculator {
 						if (pastSymbol.equals(CLOSE_BRACKET)) {
 							System.out.println("Missed operator in position "
 									+ (i + 1));
-							throw new RuntimeException();
+							return false;
 						}
 					}
-
 				}
-
 			}
 		}
+
+		if (bracketsBalans > 0) {
+			System.out.println(bracketsBalans + " bracket "
+					+ "do not have close bracket");
+			return false;
+		}
+		return true;
+	}
+
+	private void fillFirstStack(String innerExpres) {
 
 		// "!" - begin and finish symbol of expression
 		String adaptedInnerExpres = innerExpres + "!";
@@ -167,17 +228,16 @@ public class Calculator {
 		secondStack.push("!");
 
 		// to follow symbolPosition
-		int symbolPosition = 1;
+		// int symbolPosition = 1;
 		// to follow numbers of open/close brackets
-		int bracketsBalans = 0;
+		// int bracketsBalans = 0;
 
 		while (!firstStack.empty()) {
 
-			
 			String symbol = firstStack.peek();
 
 			if (isOperator(symbol)) {
-				
+
 				if (!isEmptyBuilder(builder)) {
 
 					polskForm.add(builder.toString());
@@ -190,20 +250,34 @@ public class Calculator {
 
 					secondStack.push(symbol);
 					firstStack.pop();
-					symbolPosition++;
+					// symbolPosition++;
 					break;
 
 				case "(":
 
 					secondStack.push(symbol);
 					firstStack.pop();
-					symbolPosition++;
+					// symbolPosition++;
 					break;
 
 				default:
 
-					polskForm.add(secondStack.pop());
+					if (isPriorityOperator(secondStack.peek())) {
 
+						polskForm.add(secondStack.pop());
+
+					} else {
+
+						if (isPriorityOperator(symbol)) {
+
+							secondStack.push(symbol);
+							firstStack.pop();
+
+						} else {
+							polskForm.add(secondStack.pop());
+
+						}
+					}
 					break;
 				}
 				// finish !
@@ -219,16 +293,17 @@ public class Calculator {
 
 				case "!":
 
-					if (symbol.equals(CLOSE_BRACKET)) {
-						System.out.println("Bracket in position "
-								+ symbolPosition + " do not have open bracket");
-						throw new RuntimeException();
-					} else {
-						secondStack.push(OPEN_BRACKET);
-						firstStack.pop();
-						symbolPosition++;
-						bracketsBalans++;
-					}
+					/*
+					 * if (symbol.equals(CLOSE_BRACKET)) {
+					 * System.out.println("Bracket in position " +
+					 * symbolPosition + " do not have open bracket"); throw new
+					 * RuntimeException(); } else {
+					 */
+					secondStack.push(OPEN_BRACKET);
+					firstStack.pop();
+					// symbolPosition++;
+					// bracketsBalans++;
+					// }
 					break;
 
 				case "(":
@@ -236,13 +311,14 @@ public class Calculator {
 					if (symbol.equals(CLOSE_BRACKET)) {
 						secondStack.pop();
 						firstStack.pop();
-						symbolPosition++;
-						bracketsBalans--;
+						// symbolPosition++;
+						// bracketsBalans--;
 					} else {
+
 						secondStack.push(OPEN_BRACKET);
 						firstStack.pop();
-						symbolPosition++;
-						bracketsBalans++;
+						// symbolPosition++;
+						// bracketsBalans++;
 					}
 					break;
 
@@ -254,7 +330,8 @@ public class Calculator {
 					} else {
 						secondStack.push(symbol);
 						firstStack.pop();
-						symbolPosition++;
+						// symbolPosition++;
+						// bracketsBalans++;
 					}
 
 					break;
@@ -272,23 +349,84 @@ public class Calculator {
 
 					if (secondStack.peek().equals("!")) {
 						break;
-					} else if (secondStack.peek().equals(OPEN_BRACKET)) {
-						System.out.println(bracketsBalans + " bracket "
-								+ "do not have close bracket");
-						throw new RuntimeException();
-					} else {
+					} /*
+					 * else if (secondStack.peek().equals(OPEN_BRACKET)) {
+					 * System.out.println(bracketsBalans + " bracket " +
+					 * "do not have close bracket"); throw new
+					 * RuntimeException(); }
+					 */
+					else {
 						polskForm.add(secondStack.pop());
 					}
-				}
+				} else {
 
-				builder.append(symbol);
-				firstStack.pop();
-				symbolPosition++;
+					builder.append(symbol);
+					firstStack.pop();
+					// symbolPosition++;
+				}
 			}
 
 		}
 
 		return polskForm;
+	}
+
+	private Integer calculatePolskForm(ArrayList<String> polskForm) {
+
+		// Prepare stack to work
+		Stack integerStack = new Stack();
+
+		for (int i = 0; i < polskForm.size(); i++) {
+
+			String symbol = polskForm.get(i);
+
+			if (!isOperator(symbol)) {
+				int number = Integer.parseInt(symbol);
+				integerStack.push(number);
+			} else {
+				if (symbol.equals("+")) {
+
+					Integer rightOperand = (Integer) integerStack.pop();
+					Integer leftOperand = (Integer) integerStack.pop();
+					Integer result = leftOperand + rightOperand;
+					integerStack.push(result);
+
+				} else if (symbol.equals("-")) {
+
+					Integer rightOperand = (Integer) integerStack.pop();
+					Integer leftOperand = (Integer) integerStack.pop();
+					Integer result = leftOperand - rightOperand;
+					integerStack.push(result);
+
+				} else if (symbol.equals("*")) {
+
+					Integer rightOperand = (Integer) integerStack.pop();
+					Integer leftOperand = (Integer) integerStack.pop();
+					Integer result = leftOperand * rightOperand;
+					integerStack.push(result);
+
+				} else if (symbol.equals("/")) {
+
+					Integer rightOperand = (Integer) integerStack.pop();
+					Integer leftOperand = (Integer) integerStack.pop();
+					Integer result = leftOperand / rightOperand;
+					integerStack.push(result);
+				}
+
+			}
+
+		}
+
+		return (Integer) integerStack.pop();
+	}
+
+	private boolean isPriorityOperator(String operator) {
+
+		if (operator.equals("*") || operator.equals("/")) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	private boolean isEmptyBuilder(StringBuilder builder) {
