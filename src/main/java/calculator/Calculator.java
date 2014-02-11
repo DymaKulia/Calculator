@@ -32,6 +32,12 @@ public class Calculator {
 		allowableSimbols.add("7");
 		allowableSimbols.add("8");
 		allowableSimbols.add("9");
+		allowableSimbols.add("s");
+		allowableSimbols.add("d");
+		allowableSimbols.add(",");
+		
+		
+		//allowableSimbols.add(".");
 	}
 
 	private Stack<String> firstStack = new Stack<String>();
@@ -61,6 +67,10 @@ public class Calculator {
 				e.printStackTrace();
 			}
 			// System.out.print(builder.toString());
+			
+			if(builder.toString().equals("stop")){
+				break;
+			}
 
 			System.out
 					.println("Answer = " + calc.calculate(builder.toString()));
@@ -76,11 +86,11 @@ public class Calculator {
 			fillFirstStack(innerExpres);
 			ArrayList<String> polskForm = getPolskForm();
 
-			/*
-			 * for (int i = 0; i < polskForm.size(); i++) {
-			 * 
-			 * System.out.print(polskForm.get(i) + " "); }
-			 */
+			
+			 /* for (int i = 0; i < polskForm.size(); i++) {
+			  
+			  System.out.print(polskForm.get(i) + " "); }*/
+			 
 
 			result = calculatePolskForm(polskForm);
 
@@ -158,8 +168,7 @@ public class Calculator {
 								+ " do not have open bracket");
 						return false;
 					}
-
-					if (i != 0) {
+			if (i != 0) {
 						String pastSymbol = innerExpres.substring(i - 1, i);
 						if (pastSymbol.equals(OPEN_BRACKET)) {
 							System.out.println("Missed operand in position "
