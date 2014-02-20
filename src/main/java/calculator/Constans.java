@@ -1,6 +1,8 @@
 package calculator;
 
 public class Constans {
+	
+	/**** Terminals ******/
 	public static final String BRACKET = "bracket";
 	public static final String OPERATOR = "operator";
 	public static final String DIGIT = "digit";
@@ -14,6 +16,7 @@ public class Constans {
 	public static final String MULL = "*";
 	public static final String DIV = "/";
 	public static final String DEGREE = "^";
+	
 	
 	
 }

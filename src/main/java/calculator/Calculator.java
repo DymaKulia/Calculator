@@ -72,27 +72,7 @@ public class Calculator {
 			}
 
 			System.out.println("Answer = " + calc.calculate(builder.toString()));
-
-		}
-
-		/*LexicalAnalyzer lan = new LexicalAnalyzer("(1+25+3)");
-
-		lan.nextInputSymbol();
-		System.out.println(lan.getCurrentTerminalName() + " = " + lan.getCurrentTerminalValue());
-		lan.nextInputSymbol();
-		System.out.println(lan.getCurrentTerminalName() + " = " + lan.getCurrentTerminalValue());
-		lan.nextInputSymbol();
-		System.out.println(lan.getCurrentTerminalName() + " = " + lan.getCurrentTerminalValue());
-		lan.nextInputSymbol();
-		System.out.println(lan.getCurrentTerminalName() + " = " + lan.getCurrentTerminalValue());
-		lan.nextInputSymbol();
-		System.out.println(lan.getCurrentTerminalName() + " = " + lan.getCurrentTerminalValue());
-		lan.nextInputSymbol();
-		System.out.println(lan.getCurrentTerminalName() + " = " + lan.getCurrentTerminalValue());
-		lan.nextInputSymbol();
-		System.out.println(lan.getCurrentTerminalName() + " = " + lan.getCurrentTerminalValue());
-		lan.nextInputSymbol();
-		System.out.println(lan.getCurrentTerminalName() + " = " + lan.getCurrentTerminalValue());*/
+		}		
 	}
 
 	public int calculate(String innerExpres) {
@@ -100,9 +80,9 @@ public class Calculator {
 		int result = 0;
 		if (isCorrectForm(innerExpres)) {
 
-			fillFirstStack(innerExpres);
+			/*fillFirstStack(innerExpres);
 			ArrayList<String> polskForm = getPolskForm();
-			result = calculatePolskForm(polskForm);
+			result = calculatePolskForm(polskForm);*/
 		}
 
 		return result;
@@ -110,8 +90,16 @@ public class Calculator {
 
 	private boolean isCorrectForm(String innerExpres) {
 
-		Parser parser = new Parser(innerExpres);		
-		return parser.startAnalizing();
+		Parser parser = new Parser(innerExpres);
+		boolean isCorrect = false;
+		try {
+			isCorrect = parser.startAnalizing();			
+		} catch (RuntimeException e) {
+			System.out.println(e.getMessage());
+			//e.printStackTrace();
+			return false;
+		}
+		return isCorrect;
 	}
 
 	private void fillFirstStack(String innerExpres) {
@@ -179,7 +167,7 @@ public class Calculator {
 					}
 					break;
 				}
-				// finish !
+				
 			} else if (isBracket(symbol)) {
 
 				if (!isEmptyBuilder(builder)) {
@@ -239,7 +227,6 @@ public class Calculator {
 					firstStack.pop();
 				}
 			}
-
 		}
 
 		return polskForm;
@@ -334,64 +321,5 @@ public class Calculator {
 		}
 		return false;
 	}
-
-	/*
-	 * private boolean isCorrectForm(String innerExpres) { // Do check here
-	 * about double operators, start with operator or bracket // etc. or check
-	 * "is correct innerExpres"
-	 * 
-	 * if (innerExpres.equals("")) { System.out.println("Empty expression");
-	 * return false; }
-	 * 
-	 * // to follow numbers of open/close brackets int bracketsBalans = 0;
-	 * 
-	 * for (int i = 0; i < innerExpres.length(); i++) { String symbol =
-	 * innerExpres.substring(i, i + 1); if (i == 0) { if (isOperator(symbol)) {
-	 * System.out .println("Expression cannot starts with operators"); return
-	 * false; } if (symbol.equals(CLOSE_BRACKET)) { System.out
-	 * .println("Expression cannot starts with close bracket"); return false; }
-	 * }
-	 * 
-	 * if (i == innerExpres.length() - 1) { if (isOperator(symbol)) {
-	 * System.out.println("Expression cannot ends with operators"); return
-	 * false; } if (symbol.equals(OPEN_BRACKET)) { System.out
-	 * .println("Expression cannot ends with close bracket"); return false; } }
-	 * 
-	 * if (isBracket(symbol)) { if (i != 0) { String pastSymbol =
-	 * innerExpres.substring(i - 1, i); if (symbol.equals(CLOSE_BRACKET) &&
-	 * isOperator(pastSymbol)) { System.out
-	 * .println("Expression cannot has operators befor close bracket in position "
-	 * + (i + 1)); return false; } }
-	 * 
-	 * if (symbol.equals(OPEN_BRACKET)) { bracketsBalans++; if (i != 0) { String
-	 * pastSymbol = innerExpres.substring(i - 1, i); if
-	 * (pastSymbol.equals(CLOSE_BRACKET) || isAllowableSymbol(pastSymbol)) {
-	 * System.out.println("Missed operator in position " + (i + 1)); return
-	 * false; } } } else {
-	 * 
-	 * bracketsBalans--; if (bracketsBalans < 0) {
-	 * System.out.println("Bracket in position " + i +
-	 * " do not have open bracket"); return false; } if (i != 0) { String
-	 * pastSymbol = innerExpres.substring(i - 1, i); if
-	 * (pastSymbol.equals(OPEN_BRACKET)) {
-	 * System.out.println("Missed operand in position " + (i + 1)); return
-	 * false; } } } } else if (isOperator(symbol)) { String pastSymbol =
-	 * innerExpres.substring(i - 1, i); if (pastSymbol.equals(OPEN_BRACKET)) {
-	 * System.out .println(
-	 * "Expression cannot starts with operators after open bracket in position "
-	 * + (i + 1)); return false; } if (isOperator(pastSymbol)) {
-	 * System.out.println("Duplicate operators in position " + (i + 1)); return
-	 * false; } } else { if (!isAllowableSymbol(symbol)) {
-	 * System.out.println("Undefined symbol " + symbol + " in position " + (i +
-	 * 1)); return false; } else {
-	 * 
-	 * if (i != 0) { String pastSymbol = innerExpres.substring(i - 1, i); if
-	 * (pastSymbol.equals(CLOSE_BRACKET)) {
-	 * System.out.println("Missed operator in position " + (i + 1)); return
-	 * false; } } } } }
-	 * 
-	 * if (bracketsBalans > 0) { System.out.println(bracketsBalans + " bracket "
-	 * + "do not have close bracket"); return false; } return true; }
-	 */
 
 }

@@ -36,9 +36,10 @@ public class LexicalAnalyzer {
 	}
 
 	public void nextInputSymbol() {
+		//System.out.println("caretPositon = "+caretPositon);
 		String symbol = analizedInput.substring(caretPositon, caretPositon + 1);
 		caretPositon++;
-
+		
 		if (isBracket(symbol)) {
 			currentTerminalName = Constans.BRACKET;
 			currentTerminalValue = symbol;
@@ -104,15 +105,17 @@ public class LexicalAnalyzer {
 		return false;
 	}
 
-	private boolean isEmptyBuilder(StringBuilder builder) {
-
-		if (builder.toString().equals("")) {
-			return true;
-		}
-		return false;
-	}
-
 	public int getCaretPositon() {
 		return caretPositon;
 	}
+	
+	public boolean hasNextSymbol() {
+
+		if (caretPositon <= analizedInput.length()) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
 }

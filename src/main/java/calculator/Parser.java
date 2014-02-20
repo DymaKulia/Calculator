@@ -1,5 +1,6 @@
 package calculator;
 
+import java.util.ArrayList;
 import java.util.Stack;
 
 public class Parser /*Синтаксический анализатор*/{
@@ -12,7 +13,7 @@ public class Parser /*Синтаксический анализатор*/{
 	//Таким образом будет поддерживаться синтаксис типа такого: "1+2+sum(1,2,3)"
 	
 	
-	/*****Rules*********
+	/***** Rules *********
 	 * 1.  S -> E ; S
 	 * 2.  S -> e 
 	 * 3.  E -> T E’ 
@@ -23,159 +24,148 @@ public class Parser /*Синтаксический анализатор*/{
 	 * 8.  T’ -> * F T’ 
 	 * 9.  T’ -> / F T’  
 	 * 10. T’ -> e 
-	 * 11. F -> N
-	 * 12. F -> (E)
+	 * 11. F -> Digit
+	 * 12. F -> ( E )
 	 * 13. T’ -> ^ F T’
-	 *****************/
-	
+	 ***** Rules *******/	
+	private ArrayList<String> correctInputTerminalSequence;
 	private LexicalAnalyzer lexicalAnalyzer;
 	private Stack<String> automat = new Stack<String>();
 	public Parser(String analizedInput){
 		lexicalAnalyzer = new LexicalAnalyzer(analizedInput);
 	}
 	
-	public boolean startAnalizing(){		
+	public boolean startAnalizing() {
+		correctInputTerminalSequence = new ArrayList<String>();
 		lexicalAnalyzer.nextInputSymbol();
+		
+		correctInputTerminalSequence.add(lexicalAnalyzer.getCurrentTerminalValue());
+		
 		automat.push("!");
 		automat.push("S");
-		
-		while (true) {
+
+		while (lexicalAnalyzer.hasNextSymbol()) {
 			
-			switch (lexicalAnalyzer.getCurrentTerminalName()) {
-
-			/**** BRACKET *******/
-			case Constans.BRACKET:
-
-				if (lexicalAnalyzer.getCurrentTerminalValue().equals(Constans.OPEN_BRACKET)) {
-
-					if (isNotTerminal(automat.peek())) {
-
-					} else {
-
-						if (automat.peek().equals(Constans.OPEN_BRACKET)) {
-							automat.pop();
-							lexicalAnalyzer.nextInputSymbol();
-						} else {
-							throw new RuntimeException("Syntax error in position " + lexicalAnalyzer.getCaretPositon());
-						}
-					}
-
-				}
-				if (lexicalAnalyzer.getCurrentTerminalValue().equals(Constans.CLOSE_BRACKET)) {
-
-					if (automat.peek().equals(Constans.CLOSE_BRACKET)) {
-						automat.pop();
-						lexicalAnalyzer.nextInputSymbol();
-					}
-
-				}
-				break;
-
-			/**** OPERATOR *******/
-			case Constans.OPERATOR:
-
-				switch (lexicalAnalyzer.getCurrentTerminalValue()) {
-				case Constans.SUM:
-
-					break;
-
-				case Constans.DIFF:
-
-					break;
-				case Constans.MULL:
-
-					break;
-
-				case Constans.DIV:
-
-					break;
-
-				case Constans.DEGREE:
-
-					break;
-				}
-
-				break;
-
-			/**** DIGIT *******/
-			case Constans.DIGIT:
-
-				break;
-
-			/**** FUNCTION *******/
-			case Constans.FUNCTION:
-
-				break;
-
-			/**** AND_OF_INPUT *******/
-			case Constans.AND_OF_INPUT:
-
-				break;
-
+			if (lexicalAnalyzer.getCurrentTerminalName().equals(Constans.DIGIT)) {
+				doRule(GrammaTable.getOperationCode(automat.peek(), Constans.DIGIT));
+			} else {
+				doRule(GrammaTable.getOperationCode(automat.peek(), lexicalAnalyzer.getCurrentTerminalValue()));
 			}
-
-			if (true) {
+			
+			if (automat.peek().equals("!") && lexicalAnalyzer.getCurrentTerminalValue().equals("!")) {
 				break;
 			}
 		}
-		
-		
-		
-		
-		
+
 		return true;
 	}
-
-	private boolean isNotTerminal(String peekAutomat) {
-		
-		return false;
-	}
-
-	private void doRule(int ruleNumber) {
+	
+	private void doRule(String ruleNumber) {
 
 		switch (ruleNumber) {
-		case 0:
-			throw new RuntimeException("Syntax error in position " + lexicalAnalyzer.getCaretPositon());
-
-		case 1:
-			break;
-
-		case 2:
-			break;
-			
-		case 3:
+		
+		case "100":
+			/*System.out.println("pop Dig");
+			System.out.println("nextInputSymbol");*/
+			automat.pop();			
+			lexicalAnalyzer.nextInputSymbol();
+			correctInputTerminalSequence.add(lexicalAnalyzer.getCurrentTerminalValue());
 			break;
 			
-		case 4:
-			break;
-			
-		case 5:
-			break;
-		case 6:
-			break;
-			
-		case 7:
-			break;
-			
-		case 8:
-			break;
-			
-		case 9:
-			break;
-			
-		case 10:
-			break;
-			
-		case 11:
-			break;
-			
-		case 12:
-			break;
-			
-		case 13:
+		case "1":
+			/*System.out.println("pop S");
+			System.out.println("push E");*/
+			automat.pop();
+			automat.push("E");
 			break;
 
+		case "2":
+			automat.pop();			
+			break;
+
+		case "3":
+			/*System.out.println("pop E");
+			System.out.println("push E'T");*/
+			automat.pop();
+			automat.push("E'");
+			automat.push("T");
+			break;
+
+		case "4":
+			automat.pop();
+			automat.push("E'");
+			automat.push("T");
+			automat.push("+");
+			break;
+
+		case "5":
+			automat.pop();
+			automat.push("E'");
+			automat.push("T");
+			automat.push("-");
+			break;
+
+		case "6":
+			automat.pop();
+			break;
+
+		case "7":
+			/*System.out.println("pop T");
+			System.out.println("push T'F");*/
+			automat.pop();
+			automat.push("T'");
+			automat.push("F");
+			break;
+
+		case "8":
+			automat.pop();
+			automat.push("T'");
+			automat.push("F");
+			automat.push("*");
+			break;
+
+		case "9":
+			automat.pop();
+			automat.push("T'");
+			automat.push("F");
+			automat.push("/");
+			break;
+
+		case "10":
+			automat.pop();
+			break;
+
+		case "11":
+			/*System.out.println("pop F");
+			System.out.println("push Dig");*/
+			automat.pop();
+			automat.push(Constans.DIGIT);
+			break;
+
+		case "12":
+			automat.pop();
+			automat.push(")");
+			automat.push("E");
+			automat.push("(");
+			break;
+
+		case "13":
+			automat.pop();
+			automat.push("T'");
+			automat.push("F");
+			automat.push("^");
+			break;
+			
+		case "STOP":			
+			break;
+
+		default:
+			String error = ruleNumber + lexicalAnalyzer.getCaretPositon();
+			throw new RuntimeException(error);
 		}
 	}
-	
+
+	public ArrayList<String> getCorrectInputTerminalSequence() {
+		return correctInputTerminalSequence;
+	}	
 }
