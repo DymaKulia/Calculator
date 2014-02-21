@@ -19,14 +19,17 @@ import java.util.Stack;
         * 11. F  -> Digit
         * 12. F  -> ( E )
         * 13. T’ -> ^ F T’
+        * 14. F  -> Function ( E )
+        * 15. F  -> Function ( E , E)
        ***** Rules ********/	
 
-public class Parser {	
-	
+public class Parser {
+
 	private ArrayList<String> correctInputTerminalSequence;
 	private LexicalAnalyzer lexicalAnalyzer;
 	private Stack<String> automate = new Stack<String>();
-	public Parser(String analizedInput){
+
+	public Parser(String analizedInput) {
 		lexicalAnalyzer = new LexicalAnalyzer(analizedInput);
 	}
 	

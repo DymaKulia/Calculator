@@ -45,7 +45,7 @@ public class Calculator {
 			}
 		} catch (RuntimeException e) {
 			System.out.println(e.getMessage());
-			e.printStackTrace();
+			//e.printStackTrace();
 		}
 		return result;
 	}
@@ -58,7 +58,7 @@ public class Calculator {
 			isCorrect = parser.startAnalizing();			
 		} catch (RuntimeException e) {
 			System.out.println(e.getMessage());
-			e.printStackTrace();
+			//e.printStackTrace();
 			return false;
 		}
 		return isCorrect;

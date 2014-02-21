@@ -19,5 +19,7 @@ public class Constans {
 	public static final String DIV = "/";
 	public static final String DEGREE = "^";
 	
+	public static final String VIRGULE = ",";
+	
 	
 }
