@@ -7,7 +7,7 @@ public class LexicalAnalyzer {
 
 	private String REGULAR_BRACKETS = "[()]";
 	private String REGULAR_OPERATORS = "[+/*-^]";
-	private String REGULAR_DIGITS = "[0-9]";
+	private String REGULAR_DIGITS = "[0-9.]";
 	private String REGULAR_FUNCTIONS = "[sumaxinqrt]";	
 
 	private StringBuilder builder = new StringBuilder();
@@ -57,6 +57,14 @@ public class LexicalAnalyzer {
 		} else if (isOperator(symbol)) {
 			currentTerminalName = Constans.OPERATOR;
 			currentTerminalValue = symbol;
+			
+		} else if (isFunction(symbol)) {			
+		
+			/*******************************************
+			 * realize process like in digits (use isNextInputSymbolFunction())
+			 ******************************************/
+			
+			
 
 		} else if (symbol.equals(Constans.AND_OF_INPUT)) {
 			currentTerminalName = Constans.AND_OF_INPUT;
@@ -65,6 +73,15 @@ public class LexicalAnalyzer {
 
 			throw new RuntimeException("Undefined symbol in position " + caretPositon);
 		}
+	}
+
+	private boolean isFunction(String symbol) {
+		Pattern p = Pattern.compile(REGULAR_FUNCTIONS);
+		Matcher m = p.matcher(symbol);
+		if (m.matches()) {
+			return true;
+		}
+		return false;
 	}
 
 	private boolean isBracket(String symbol) {

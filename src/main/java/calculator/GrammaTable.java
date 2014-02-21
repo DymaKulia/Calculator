@@ -5,9 +5,8 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class GrammaTable {
+public class GrammaTable {	
 	
-	// 0 -> error
 	public static Map<String,Map<String,String>> MAIN_TABLE;
 	private static String REGULAR_NOT_TERMINALS = "[SETF]'?";
 
